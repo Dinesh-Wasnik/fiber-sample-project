@@ -5,6 +5,8 @@ import (
 	"fiber-sample-project/app/config"
 	"fiber-sample-project/app/routes"
 	"fiber-sample-project/docs"
+	"os/signal"
+	"syscall"
 
 	swagger "github.com/gofiber/contrib/v3/swaggo"
 
@@ -48,8 +50,21 @@ func main() {
 
 	routes.Api(app)
 	routes.Web(app)
-
+	go listenForShutdown(app)
 	if err := app.Listen(":3000"); err != nil {
 		log.Printf("❌ Server error: %v\n", err)
 	}
+}
+
+func listenForShutdown(app *fiber.App) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	log.Println("🛑 Shutting down server...")
+
+	if err := app.Shutdown(); err != nil {
+		log.Printf("❌ Server shutdown error: %v\n", err)
+	}
+	log.Println("✅ Server stopped")
 }
