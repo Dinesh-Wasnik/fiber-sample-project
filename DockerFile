@@ -1,0 +1,37 @@
+#Production file
+# Build stage
+FROM golang:1.26-alpine AS builder
+
+WORKDIR /app
+
+# Copy module files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the code
+COPY . .
+
+# Build the Go app
+RUN go build -o server .
+
+# Run stage
+FROM alpine
+WORKDIR /app
+
+
+# Create www-data user & group only if not exists
+RUN getent group www-data || addgroup -g 1000 www-data \
+    && getent passwd www-data || adduser -D -u 1000 -G www-data www-data
+
+RUN mkdir -p /app/logs
+
+COPY --from=builder /app/server .
+
+# Ensure app directory is owned by www-data
+RUN chown -R www-data:www-data /app
+EXPOSE 3000
+
+#Switch to non-root user
+USER www-data
+
+CMD ["./server"]

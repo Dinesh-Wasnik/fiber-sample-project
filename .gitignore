@@ -1,0 +1,8 @@
+.env
+compose.yml
+/tmp
+/docs/
+/logs
+.github/
+/vendor
+

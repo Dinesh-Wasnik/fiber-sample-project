@@ -1,0 +1,29 @@
+name: ${APP_NAME}
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: ${APP_NAME}
+    restart: unless-stopped
+    volumes:
+      # - ./:/app  # Uncomment this line if you want to mount the entire project directory
+      - ../../logs/${APP_NAME}:/app/logs
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT}:3000"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Generating protobuf files..." && \
+        protoc --go_out=. --go-grpc_out=. proto/*.proto && \
+        echo "Starting Air dev server..." && \
+        air
+    networks:
+      - game-local
+
+
+networks:
+  game-local:
+    external: true
