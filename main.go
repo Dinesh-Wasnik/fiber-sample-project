@@ -47,6 +47,11 @@ func main() {
 
 	//route for swagger docs
 	app.Get("/swagger/*", swagger.New())
+	//enable this code if want to connect to database
+	//config.Connect()
+
+	//run migraion if any
+	//config.Migration()
 
 	routes.Api(app)
 	routes.Web(app)

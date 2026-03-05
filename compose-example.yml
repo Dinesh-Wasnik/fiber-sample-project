@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.local
+      dockerfile: DockerFile.local
     container_name: ${APP_NAME}
     restart: unless-stopped
     volumes:
